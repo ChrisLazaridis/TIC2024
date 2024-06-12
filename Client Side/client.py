@@ -1,7 +1,2 @@
-from sage.all import *
-
-# Example: Solve a simple equation
-x = var('x')
-equation = x**2 - 4 == 0
-solutions = solve(equation, x)
-print(solutions)
+# TODO: Get a message, compress it using the fano-shanon algorithm, encode the result using linear code
+# TODO: and random noise and send it to the server for decoding as a json
