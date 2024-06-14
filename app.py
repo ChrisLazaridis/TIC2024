@@ -1,11 +1,16 @@
-from flask import Flask
-
+from flask import Flask, request, jsonify
+import requests
 app = Flask(__name__)
 
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return 'Hello, World!'
+
+@app.route('/post', methods=['POST'])
+def post_example():
+    data = request.json
+    return jsonify({'you_sent': data}), 200
 
 
 if __name__ == '__main__':
