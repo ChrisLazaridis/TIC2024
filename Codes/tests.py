@@ -10,7 +10,7 @@ def solve_equation(equation):
     """
     try:
         # Parse the equation string into a SageMath expression
-        eq = SR(equation)
+        eq = SvR(equation)
         # Solve the equation
         solutions = solve(eq, x)
         if solutions:
