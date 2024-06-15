@@ -65,9 +65,9 @@ class LinearCodeEncode:
 class LinearCodeDecode:
     def __init__(self, encoded_message, parity_matrix):
         self.encoded_message = encoded_message
-        for _ in range(4):
-            x = rnd.randint(0, len(self.encoded_message) - 1)
-            self.encoded_message[x] = 1 if self.encoded_message[x] == 0 else 0
+        #for _ in range(4):
+           # x = rnd.randint(0, len(self.encoded_message) - 1)
+           # self.encoded_message[x] = 1 if self.encoded_message[x] == 0 else 0
         self.parity_matrix = parity_matrix
         self.H_matrix = self.create_h_matrix()
         self.syndrome = self.calculate_syndrome()
@@ -143,11 +143,3 @@ class LinearCodeDecode:
             original_message = corrected_message[32:32 + k]
             return original_message
 
-
-# Example usage
-message = [1, 0, 1, 0, 0, 1, 0, 1]
-encoder = LinearCodeEncode(message)
-print(f"Encoded message: {encoder.encoded_message}")
-decoder = LinearCodeDecode(encoder.encoded_message, encoder.parity_matrix)
-print(f"Decoded message: {decoder.decoded_message}")
-print(f"Error count: {decoder.error_count}")

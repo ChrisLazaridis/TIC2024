@@ -1,5 +1,5 @@
 class Compress:
-    def __init__(self, message_, code_table_=None, mode='linear_code'):
+    def __init__(self, message_, code_table_=None, mode='encode'):
         """
         Initialize the Compress class based on the mode.
 
@@ -11,7 +11,7 @@ class Compress:
         self.code_table = code_table_ if code_table_ else {}
         self.frequencies = {}
 
-        if mode == 'linear_code':
+        if mode == 'encode':
             self.frequencies = self.calculate_frequencies(self.message)
             self.code_table = self.build_code_table(self.frequencies)
         elif mode == 'decode':
@@ -87,6 +87,7 @@ class Compress:
                 frequency_low[char] = freq
         return frequency_high, frequency_low
 
+    @property
     def compress(self):
         """
         Encode the message using the code table.
@@ -112,19 +113,3 @@ class Compress:
                 current_code = ''
         return decode_message
 
-
-# Example usage
-message = "hello world"
-compressor = Compress(message_=list(message))
-frequencies = compressor.frequencies
-code_table = compressor.code_table
-encoded_message = compressor.compress()
-
-print("\n Frequencies:", frequencies)
-print("\n Code Table:", code_table)
-print("\n Encoded Message:", encoded_message)
-
-# For decoding
-decoder = Compress(encoded_message, code_table_=code_table, mode='decode')
-decoded_message: str = decoder.decompress()
-print("\n Decoded Message:", decoded_message)
