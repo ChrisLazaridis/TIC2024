@@ -16,6 +16,7 @@
 # - the decoding should be done by multiplying the encoded message vector by the H matrix transposed
 # - the error checking should be done by checking if the result of the multiplication between H and the encoded message vector transposed is a zero vector
 
+
 from sage.all import *
 import random as rnd
 import math
@@ -64,6 +65,8 @@ class LinearCodeEncode:
 class LinearCodeDecode:
     def __init__(self, encoded_message, parity_matrix):
         self.encoded_message = encoded_message
+        x = rnd.randint(33, len(self.encoded_message) - 1)
+        self.encoded_message[x] = 1 if self.encoded_message[x] == 0 else 0
         self.parity_matrix = parity_matrix
         self.H_matrix = self.create_h_matrix()
         self.syndrome = self.calculate_syndrome()
@@ -95,6 +98,28 @@ class LinearCodeDecode:
         error_count = sum(1 for bit in self.syndrome if bit != 0)
         return error_count
 
+    @staticmethod
+    def correct_errors(encoded_message, syndrome):
+        # Remove parentheses from the syndrome
+        syndrome_str = ''.join(str(bit) for bit in syndrome).replace('(', '').replace(')', '')
+
+        # Convert the syndrome to an integer index
+        error_index = int(syndrome_str, 2)
+
+        # If the syndrome is all zeros, there is no error
+        if error_index == 0:
+            return encoded_message
+
+        # If the error index is greater than the length of the message, it's an uncorrectable error
+        if error_index > len(encoded_message):
+            raise ValueError("Uncorrectable error detected.")
+
+        # Flip the bit at the error index (subtract 1 because syndrome indexing starts at 1)
+        corrected_message = list(encoded_message)
+        corrected_message[error_index - 1] = 1 - corrected_message[error_index - 1]
+
+        return corrected_message
+
     def decode_message(self):
         # If no errors, extract the original message from the encoded message
         if self.error_count == 0:
@@ -106,9 +131,15 @@ class LinearCodeDecode:
             original_message = self.encoded_message[32:32 + k]
             return original_message
         else:
-            # If there are errors, implement error correction here if necessary
-            decoded_message = None  # Placeholder for the actual error-corrected message
-        return decoded_message
+            # If errors are detected, try to correct them
+            corrected_message = self.correct_errors(self.encoded_message, self.syndrome)
+            # Extract the header (first 32 bits) from the corrected message
+            header = corrected_message[:32]
+            # turn it to an int from the binary form
+            k = int(''.join(str(bit) for bit in header), 2)
+            # Extract the original message from the corrected message
+            original_message = corrected_message[32:32 + k]
+            return original_message
 
 
 # Example usage
