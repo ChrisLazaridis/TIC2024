@@ -65,8 +65,9 @@ class LinearCodeEncode:
 class LinearCodeDecode:
     def __init__(self, encoded_message, parity_matrix):
         self.encoded_message = encoded_message
-        x = rnd.randint(33, len(self.encoded_message) - 1)
-        self.encoded_message[x] = 1 if self.encoded_message[x] == 0 else 0
+        for _ in range(4):
+            x = rnd.randint(0, len(self.encoded_message) - 1)
+            self.encoded_message[x] = 1 if self.encoded_message[x] == 0 else 0
         self.parity_matrix = parity_matrix
         self.H_matrix = self.create_h_matrix()
         self.syndrome = self.calculate_syndrome()
@@ -100,6 +101,7 @@ class LinearCodeDecode:
 
     @staticmethod
     def correct_errors(encoded_message, syndrome):
+        # WARNING: ΑΥΤΟ ΤΟ ΠΕΤΑΞΕ PROMPT, ΕΧΩ ΧΑΜΗΛΕΣ ΕΩΣ ΚΑΘΟΛΟΥ ΕΛΠΙΔΕΣ
         # Remove parentheses from the syndrome
         syndrome_str = ''.join(str(bit) for bit in syndrome).replace('(', '').replace(')', '')
 
