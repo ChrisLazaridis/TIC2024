@@ -15,6 +15,7 @@ class Compress:
             self.frequencies = self.calculate_frequencies(self.message)
             self.code_table = self.build_code_table(self.frequencies)
         elif mode == 'decode':
+            self.message = ''.join(map(str, self.message))
             if not self.code_table:
                 raise ValueError("Code table must be provided for decoding")
 
@@ -95,7 +96,7 @@ class Compress:
         :return: str, the encoded message.
         """
         enc_mes = ''.join(self.code_table[char] for char in self.message)
-        return enc_mes
+        return list(enc_mes)
 
     def decompress(self):
         """

@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from tests import *
 import requests
 app = Flask(__name__)
 
@@ -10,6 +11,7 @@ def hello_world():
 @app.route('/post', methods=['POST'])
 def post_example():
     data = request.json
+    CompressEncodeDecodeDecomress(str(data[1]))
     return jsonify({'you_sent': data}), 200
 
 
