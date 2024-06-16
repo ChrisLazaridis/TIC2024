@@ -1,22 +1,3 @@
-# Implement a linear code with a generator matrix to check for errors. The length of the codeword should be rounded to the nearest multiple of 8.
-# padding will be used to fill the remaining bits. Along with the message, a number of log(k) bits will be encoded in the start of the message, which will indicate
-# the amount of data bits in the message. The message will be encoded using the generator matrix, and then sent to the server. The server will decode the message using the
-# parity check matrix, and then check for errors. If an error is detected, the server will send a message to the client to resend the message. If no error is detected, the server
-# two classes will be made, one for the encoding, and one for the decoding. The encoding class is responsible for:
-# - creating the generator matrix based on the message length + the amount of bits needed to indicate the length of the message
-# - the parity matrix should be made for an n = k + log(k) so it should have k rows and  k+log(k) columns.
-# - the generator matrix should be an augmented matrix with the identity matrix of size k as the left part, and the parity matrix as the right part
-# - padding the message to match the length of the codeword exactly, for that reason random bits should be added at the end of the message
-# - encoding the message using the generator matrix, basically multiplying message vector by the generator matrix
-# The decoding class is responsible for:
-# - decoding the message using the parity matrix
-# - checking for errors in the message
-# - show how many errors there are in the message
-# - create the H matrix used for error checking and decoding. H = [P^T I] where P is the parity matrix (transposed) and I is the identity matrix of size log(k)
-# - the decoding should be done by multiplying the encoded message vector by the H matrix transposed
-# - the error checking should be done by checking if the result of the multiplication between H and the encoded message vector transposed is a zero vector
-
-
 from sage.all import *
 import random as rnd
 import math
@@ -65,9 +46,6 @@ class LinearCodeEncode:
 class LinearCodeDecode:
     def __init__(self, encoded_message, parity_matrix):
         self.encoded_message = encoded_message
-        #for _ in range(4):
-           # x = rnd.randint(0, len(self.encoded_message) - 1)
-           # self.encoded_message[x] = 1 if self.encoded_message[x] == 0 else 0
         self.parity_matrix = parity_matrix
         self.H_matrix = self.create_h_matrix()
         self.syndrome = self.calculate_syndrome()
@@ -84,6 +62,7 @@ class LinearCodeDecode:
         # Augment P^T with I to form the H matrix
         h_matrix = p_transposed.augment(identity_matrix)
         return h_matrix
+
 
     def calculate_syndrome(self):
         # Convert the encoded message to a vector
@@ -142,4 +121,3 @@ class LinearCodeDecode:
             # Extract the original message from the corrected message
             original_message = corrected_message[32:32 + k]
             return original_message
-

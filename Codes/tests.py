@@ -1,5 +1,6 @@
 from fannon_shannon import Compress
 from linear import LinearCodeEncode, LinearCodeDecode
+from HammingCode import HammingCodeEncode, HammingCodeDecode
 from sage.all import *
 
 # Example usage
@@ -9,12 +10,12 @@ frequencies = compressor.frequencies
 code_table = compressor.code_table
 compressed_message = compressor.compress
 print(f"Compressed message: {compressed_message}")
-linearCodeEncode = LinearCodeEncode(compressed_message)
-parity_matrix = linearCodeEncode.parity_matrix
-encoded_message = linearCodeEncode.encoded_message
+HammingCodeEncode_ = HammingCodeEncode(compressed_message)
+parity_matrix = HammingCodeEncode_.parity_matrix
+encoded_message = HammingCodeEncode_.encoded_message
 print(f"Encoded message: {encoded_message}")
-linearCodeDecode = LinearCodeDecode(encoded_message, parity_matrix)
-decoded_message = linearCodeDecode.decoded_message
+HammingCodeDecode_ = HammingCodeDecode(encoded_message, parity_matrix)
+decoded_message = HammingCodeDecode_.decoded_message
 # turn the decoded message into a string
 decoded_message = ''.join(map(str, decoded_message))
 print(f"Decoded message: {decoded_message}")
