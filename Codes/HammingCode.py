@@ -21,7 +21,7 @@ class HammingCodeEncode:
         # Identity matrix of size k
         identity_matrix = matrix.identity(GF(2), 11)
         # Create the parity matrix
-        parity_matrix = matrix(GF(2), m, 16)
+        parity_matrix = matrix(GF(2), m, 15)
 
         for i in range(m):
             for j in range(11):
