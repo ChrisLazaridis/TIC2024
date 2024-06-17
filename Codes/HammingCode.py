@@ -113,5 +113,5 @@ class HammingCodeDecode:
             original_message = corrected_chunk[4:4 + k]
             decoded_message.extend(original_message)
         # Remove any trailing zeros introduced by padding
-        decoded_message = decoded_message[:len(self.encoded_message)//20*12]
+        decoded_message = decoded_message[:len(self.encoded_message)//15*7]
         return decoded_message, error_count
