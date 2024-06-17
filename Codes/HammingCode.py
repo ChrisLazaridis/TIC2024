@@ -65,7 +65,7 @@ class HammingCodeDecode:
         :return: matrix, the parity check matrix
         """
         m = 4
-        parity_matrix = matrix(GF(2), m, 16)
+        parity_matrix = matrix(GF(2), m, 15)
         for i in range(m):
             for j in range(11):
                 parity_matrix[i, j] = (j + 1) & (1 << i) != 0
