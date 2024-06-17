@@ -92,7 +92,7 @@ class HammingCodeDecode:
         """
         syndrome_as_ints = [int(bit) for bit in syndrome.list()]
         error_index = sum(2 ** i * bit for i, bit in enumerate(syndrome_as_ints))
-        if error_index > 0 and error_index <= 16:
+        if error_index > 0 and error_index <= 15:
             message[error_index - 1] = 1 if message[error_index - 1] == 0 else 0
         return message
 
@@ -103,8 +103,8 @@ class HammingCodeDecode:
         """
         decoded_message = []
         error_count = 0
-        for i in range(0, len(self.encoded_message), 16):
-            chunk = self.encoded_message[i:i+16]
+        for i in range(0, len(self.encoded_message), 15):
+            chunk = self.encoded_message[i:i+15]
             syndrome = self.calculate_syndrome(chunk)
             error_count += sum(1 for bit in syndrome if bit != 0)
             corrected_chunk = self.correct_errors(chunk, syndrome)
