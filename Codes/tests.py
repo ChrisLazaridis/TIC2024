@@ -1,8 +1,6 @@
-from fannon_shannon import Compress
-from HammingCodeNumPy import HammingCodeEncode, HammingCodeDecode
-from sage.all import *
 import random
-
+from fannon_shannon import Compress
+from HammingCodeNumPu3126 import HammingCodeEncode, HammingCodeDecode
 
 def create_noise(mes, percentage):
     """
@@ -20,7 +18,6 @@ def create_noise(mes, percentage):
         mes[index] = random.choice(noise)
     return mes
 
-
 # Example usage
 message = (
     "Ex-Fiorentina icon Jovetic, introduced from the Olympiakos bench, "
@@ -34,12 +31,12 @@ code_table = compressor.code_table
 compressed_message = compressor.compress
 HammingCodeEncode_ = HammingCodeEncode(compressed_message)
 encoded_message = HammingCodeEncode_.encoded_message
-encoded_message = create_noise(encoded_message, 0.01)
-HammingCodeDecode_ = HammingCodeDecode(encoded_message)
+encoded_message_with_noise = create_noise(list(encoded_message), 0.01)
+HammingCodeDecode_ = HammingCodeDecode(encoded_message_with_noise)
 print(f"Error count: {HammingCodeDecode_.errors_found}")
 print(f"Errors Corrected: {HammingCodeDecode_.errors_corrected}")
 decoded_message = HammingCodeDecode_.decoded_message
-# turn the decoded message into a an array of ints, from the np
+# turn the decoded message into an array of ints
 decoded_message = [int(bit) for bit in decoded_message]
 # turn the decoded message into a string
 decompressor = Compress(message_=decoded_message, code_table_=code_table, mode='decode')

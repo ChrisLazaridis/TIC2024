@@ -17,14 +17,14 @@ class HammingCodeEncode:
         :return: matrix, the generator matrix
         """
         # Number of parity bits
-        m = 4
+        m = 5
         # Identity matrix of size k
-        identity_matrix = np.eye(11, dtype=int)
+        identity_matrix = np.eye(26, dtype=int)
         # Create the parity matrix
-        parity_matrix = np.zeros((m, 11), dtype=int)
+        parity_matrix = np.zeros((m, 26), dtype=int)
 
         for i in range(m):
-            for j in range(11):
+            for j in range(26):
                 parity_matrix[i, j] = (j + 1) & (1 << i) != 0
 
         generator_matrix = np.hstack((identity_matrix, parity_matrix.T))
@@ -36,15 +36,14 @@ class HammingCodeEncode:
         :return: the encoded message
         """
         final_message = []
-        for i in range(0, len(self.message), 8):
-            chunk = self.message[i:i + 8]
+        for i in range(0, len(self.message), 21):
+            chunk = self.message[i:i + 21]
             actual_length = len(chunk)
-            padding_length = 8 - actual_length if actual_length < 8 else 0
+            padding_length = 21 - actual_length if actual_length < 21 else 0
             if padding_length > 0:
                 chunk = np.append(chunk, [0] * padding_length)
-            header = [int(bit) for bit in bin(padding_length)[2:].zfill(3)]
+            header = [int(bit) for bit in bin(padding_length)[2:].zfill(5)]
             padded_message = header + chunk.tolist()
-            print(len(padded_message))
             message_vector = np.array(padded_message, dtype=int)
             encoded_chunk = np.dot(message_vector, self.generator_matrix) % 2
             final_message.extend(encoded_chunk)
@@ -66,11 +65,11 @@ class HammingCodeDecode:
         Create the parity check matrix for the Hamming code
         :return: matrix, the parity check matrix
         """
-        m = 4
-        parity_matrix = np.zeros((m, 11), dtype=int)
+        m = 5
+        parity_matrix = np.zeros((m, 26), dtype=int)
 
         for i in range(m):
-            for j in range(11):
+            for j in range(26):
                 parity_matrix[i, j] = (j + 1) & (1 << i) != 0
 
         identity_matrix = np.eye(m, dtype=int)
@@ -97,7 +96,7 @@ class HammingCodeDecode:
         """
         syndrome_as_ints = syndrome.tolist()
         error_index = sum(2 ** i * bit for i, bit in enumerate(syndrome_as_ints))
-        if 0 < error_index <= 15:
+        if 0 < error_index <= 26:
             message[error_index - 1] = int(message[error_index - 1]) ^ 1
         return message
 
@@ -109,8 +108,8 @@ class HammingCodeDecode:
         decoded_message = []
         errors_found = 0
         errors_corrected = 0
-        for i in range(0, len(self.encoded_message), 15):
-            chunk = self.encoded_message[i:i + 15]
+        for i in range(0, len(self.encoded_message), 31):
+            chunk = self.encoded_message[i:i + 31]
             syndrome = self.calculate_syndrome(chunk)
             if np.sum(syndrome) != 0:
                 errors_found += 1
@@ -120,8 +119,8 @@ class HammingCodeDecode:
                     errors_corrected += 1
             else:
                 corrected_chunk = chunk
-            header = corrected_chunk[:3]
+            header = corrected_chunk[:5]
             padding_length = int(''.join(str(bit) for bit in header), 2)
-            original_message = corrected_chunk[3:11 - padding_length]
+            original_message = corrected_chunk[5:26 - padding_length]
             decoded_message.extend(original_message)
         return decoded_message, errors_found, errors_corrected
