@@ -92,7 +92,7 @@ class HammingCodeDecode:
         """
         syndrome_as_ints = [int(bit) for bit in syndrome.list()]
         error_index = sum(2 ** i * bit for i, bit in enumerate(syndrome_as_ints))
-        if error_index > 0 and error_index <= 20:
+        if error_index > 0 and error_index <= 21:
             message[error_index - 1] = 1 if message[error_index - 1] == 0 else 0
         return message
 
