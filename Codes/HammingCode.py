@@ -17,7 +17,7 @@ class HammingCodeEncode:
         :return: matrix, the generator matrix
         """
         # Number of parity bits
-        m = 4
+        m = 5
         # Identity matrix of size k
         identity_matrix = matrix.identity(GF(2), 16)
         # Create the parity matrix
@@ -64,7 +64,7 @@ class HammingCodeDecode:
         Create the parity check matrix for the Hamming code
         :return: matrix, the parity check matrix
         """
-        m = 4
+        m = 5
         parity_matrix = matrix(GF(2), m, 16)
         for i in range(m):
             for j in range(16):
@@ -103,8 +103,8 @@ class HammingCodeDecode:
         """
         decoded_message = []
         error_count = 0
-        for i in range(0, len(self.encoded_message), 20):
-            chunk = self.encoded_message[i:i+20]
+        for i in range(0, len(self.encoded_message), 21):
+            chunk = self.encoded_message[i:i+21]
             syndrome = self.calculate_syndrome(chunk)
             error_count += sum(1 for bit in syndrome if bit != 0)
             corrected_chunk = self.correct_errors(chunk, syndrome)
