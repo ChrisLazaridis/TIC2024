@@ -44,7 +44,6 @@ class HammingCodeEncode:
                 chunk = np.append(chunk, [0] * padding_length)
             header = [int(bit) for bit in bin(padding_length)[2:].zfill(3)]
             padded_message = header + chunk.tolist()
-            print(len(padded_message))
             message_vector = np.array(padded_message, dtype=int)
             encoded_chunk = np.dot(message_vector, self.generator_matrix) % 2
             final_message.extend(encoded_chunk)

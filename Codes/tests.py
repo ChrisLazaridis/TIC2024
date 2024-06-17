@@ -1,6 +1,7 @@
 import random
 from fannon_shannon import Compress
-from HammingCodeNumPu3126 import HammingCodeEncode, HammingCodeDecode
+from HammingCodeNumPy import HammingCodeEncode, HammingCodeDecode
+
 
 def create_noise(mes, percentage):
     """
@@ -9,17 +10,17 @@ def create_noise(mes, percentage):
     :param percentage: float, the percentage of noise to add
     :return: list, the message with noise
     """
-    noise = [0, 1]
     if percentage < 0 or percentage > 1:
         raise ValueError("Percentage must be between 0 and 1")
     noise_count = int(len(mes) * percentage)
     for _ in range(noise_count):
-        index = random.randint(0, len(mes) - 1)
-        mes[index] = random.choice(noise)
+        mes[len(mes) - (len(mes)//2) - _] ^= 1
     return mes
 
+
 # Example usage
-message = (
+message = "Hello World This Is My first Message"
+message2 = (
     "Ex-Fiorentina icon Jovetic, introduced from the Olympiakos bench, "
     "forced a good save from Terracciano with a curling 20-yard strike one minute later as the match seemed to spark back to life. "
     "However, the game then tightened up again as neither team appeared to want to take a risk that might cost them the tie. "
@@ -30,14 +31,24 @@ frequencies = compressor.frequencies
 code_table = compressor.code_table
 compressed_message = compressor.compress
 HammingCodeEncode_ = HammingCodeEncode(compressed_message)
+compressed_message = [int(bit) for bit in compressed_message]
 encoded_message = HammingCodeEncode_.encoded_message
 encoded_message_with_noise = create_noise(list(encoded_message), 0.01)
+if len(encoded_message) != len(encoded_message_with_noise):
+    print("Error: Encoded message and encoded message with noise are not the same length")
+    exit()
+# count the differences between the encoded message and the encoded message with noise
+differences = sum(1 for bit1, bit2 in zip(encoded_message, encoded_message_with_noise) if bit1 != bit2)
+print(f"Differences: {differences / len(encoded_message) * 100:.2f}%")
 HammingCodeDecode_ = HammingCodeDecode(encoded_message_with_noise)
-print(f"Error count: {HammingCodeDecode_.errors_found}")
-print(f"Errors Corrected: {HammingCodeDecode_.errors_corrected}")
 decoded_message = HammingCodeDecode_.decoded_message
-# turn the decoded message into an array of ints
+# count the differences between the encoded and decoded messages
 decoded_message = [int(bit) for bit in decoded_message]
+differences = sum(1 for bit1, bit2 in zip(compressed_message, decoded_message) if bit1 != bit2)
+print(f"Compressed message length: {len(compressed_message)}")
+print(f"Decoded message length: {len(decoded_message)}")
+print(f"Differences: {differences / len(decoded_message) * 100:.2f}%")
+# turn the decoded message into an array of ints
 # turn the decoded message into a string
 decompressor = Compress(message_=decoded_message, code_table_=code_table, mode='decode')
 decompressed_message = decompressor.decompress()

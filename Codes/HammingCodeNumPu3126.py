@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class HammingCodeEncode:
     def __init__(self, message_):
         """
@@ -21,13 +20,13 @@ class HammingCodeEncode:
         # Identity matrix of size k
         identity_matrix = np.eye(26, dtype=int)
         # Create the parity matrix
-        parity_matrix = np.zeros((m, 26), dtype=int)
+        parity_matrix = np.zeros((26, m), dtype=int)
 
-        for i in range(m):
-            for j in range(26):
-                parity_matrix[i, j] = (j + 1) & (1 << i) != 0
+        for i in range(26):
+            for j in range(m):
+                parity_matrix[i, j] = (i + 1) & (1 << j) != 0
 
-        generator_matrix = np.hstack((identity_matrix, parity_matrix.T))
+        generator_matrix = np.hstack((identity_matrix, parity_matrix))
         return generator_matrix
 
     def encode_message(self):
@@ -66,11 +65,11 @@ class HammingCodeDecode:
         :return: matrix, the parity check matrix
         """
         m = 5
-        parity_matrix = np.zeros((m, 26), dtype=int)
+        parity_matrix = np.zeros((26, m), dtype=int)
 
-        for i in range(m):
-            for j in range(26):
-                parity_matrix[i, j] = (j + 1) & (1 << i) != 0
+        for i in range(26):
+            for j in range(m):
+                parity_matrix[i, j] = (i + 1) & (1 << j) != 0
 
         identity_matrix = np.eye(m, dtype=int)
         h_matrix = np.hstack((parity_matrix, identity_matrix))
@@ -83,7 +82,7 @@ class HammingCodeDecode:
         :return: vector, the syndrome of the encoded message
         """
         encoded_message_vector = np.array(message, dtype=int)
-        syndrome = np.dot(self.H_matrix, encoded_message_vector) % 2
+        syndrome = np.dot(self.H_matrix.T, encoded_message_vector) % 2
         return syndrome
 
     @staticmethod
@@ -96,7 +95,7 @@ class HammingCodeDecode:
         """
         syndrome_as_ints = syndrome.tolist()
         error_index = sum(2 ** i * bit for i, bit in enumerate(syndrome_as_ints))
-        if 0 < error_index <= 26:
+        if 0 < error_index <= 31:
             message[error_index - 1] = int(message[error_index - 1]) ^ 1
         return message
 
@@ -122,5 +121,7 @@ class HammingCodeDecode:
             header = corrected_chunk[:5]
             padding_length = int(''.join(str(bit) for bit in header), 2)
             original_message = corrected_chunk[5:26 - padding_length]
+            if len(original_message) + padding_length != 21:
+                print('Error')
             decoded_message.extend(original_message)
         return decoded_message, errors_found, errors_corrected
