@@ -17,14 +17,14 @@ class HammingCodeEncode:
         :return: matrix, the generator matrix
         """
         # Number of parity bits
-        m = 5
+        m = 4
         # Identity matrix of size k
-        identity_matrix = matrix.identity(GF(2), 16)
+        identity_matrix = matrix.identity(GF(2), 11)
         # Create the parity matrix
         parity_matrix = matrix(GF(2), m, 16)
 
         for i in range(m):
-            for j in range(16):
+            for j in range(11):
                 parity_matrix[i, j] = (j + 1) & (1 << i) != 0
 
         generator_matrix = identity_matrix.augment(parity_matrix.transpose())
@@ -36,13 +36,13 @@ class HammingCodeEncode:
         :return: the encoded message
         """
         final_message = []
-        for i in range(0, len(self.message), 12):
-            chunk = self.message[i:i+12]
+        for i in range(0, len(self.message), 7):
+            chunk = self.message[i:i+7]
             actual_length = len(chunk)
-            if actual_length < 12:
-                chunk += [0] * (12 - actual_length)
+            if actual_length < 7:
+                chunk += [0] * (7 - actual_length)
             header = [int(bit) for bit in bin(actual_length)[2:].zfill(4)]
-            padded_message = header + chunk + [0] * (16 - 4 - len(chunk))
+            padded_message = header + chunk + [0] * (11 - 4 - len(chunk))
             message_vector = vector(GF(2), padded_message)
             encoded_chunk = message_vector * self.generator_matrix
             final_message.extend(encoded_chunk)
@@ -64,10 +64,10 @@ class HammingCodeDecode:
         Create the parity check matrix for the Hamming code
         :return: matrix, the parity check matrix
         """
-        m = 5
+        m = 4
         parity_matrix = matrix(GF(2), m, 16)
         for i in range(m):
-            for j in range(16):
+            for j in range(11):
                 parity_matrix[i, j] = (j + 1) & (1 << i) != 0
         identity_matrix = matrix.identity(GF(2), m)
         h_matrix = parity_matrix.augment(identity_matrix)
@@ -92,7 +92,7 @@ class HammingCodeDecode:
         """
         syndrome_as_ints = [int(bit) for bit in syndrome.list()]
         error_index = sum(2 ** i * bit for i, bit in enumerate(syndrome_as_ints))
-        if error_index > 0 and error_index <= 21:
+        if error_index > 0 and error_index <= 16:
             message[error_index - 1] = 1 if message[error_index - 1] == 0 else 0
         return message
 
@@ -103,8 +103,8 @@ class HammingCodeDecode:
         """
         decoded_message = []
         error_count = 0
-        for i in range(0, len(self.encoded_message), 21):
-            chunk = self.encoded_message[i:i+21]
+        for i in range(0, len(self.encoded_message), 16):
+            chunk = self.encoded_message[i:i+16]
             syndrome = self.calculate_syndrome(chunk)
             error_count += sum(1 for bit in syndrome if bit != 0)
             corrected_chunk = self.correct_errors(chunk, syndrome)
