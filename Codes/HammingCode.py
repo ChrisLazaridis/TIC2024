@@ -21,7 +21,7 @@ class HammingCodeEncode:
         # Identity matrix of size k
         identity_matrix = matrix.identity(GF(2), 11)
         # Create the parity matrix
-        parity_matrix = matrix(GF(2), m, 15)
+        parity_matrix = matrix(GF(2), m, 11)
 
         for i in range(m):
             for j in range(11):
@@ -36,13 +36,14 @@ class HammingCodeEncode:
         :return: the encoded message
         """
         final_message = []
-        for i in range(0, len(self.message), 7):
-            chunk = self.message[i:i+7]
+        for i in range(0, len(self.message), 8):
+            chunk = self.message[i:i+8]
             actual_length = len(chunk)
-            if actual_length < 7:
-                chunk += [0] * (7 - actual_length)
-            header = [int(bit) for bit in bin(actual_length)[2:].zfill(4)]
-            padded_message = header + chunk + [0] * (11 - 4 - len(chunk))
+            padding_length = 8 - actual_length if actual_length < 8 else 0
+            if padding_length > 0:
+                chunk += [0] * padding_length
+            header = [int(bit) for bit in bin(padding_length)[2:].zfill(3)]
+            padded_message = header + chunk + [0] * (11 - 3 - len(chunk))
             message_vector = vector(GF(2), padded_message)
             encoded_chunk = message_vector * self.generator_matrix
             final_message.extend(encoded_chunk)
@@ -56,7 +57,7 @@ class HammingCodeDecode:
         """
         self.encoded_message = encoded_message
         self.H_matrix = self.create_h_matrix()
-        self.decoded_message, self.error_count = self.decode_message()
+        self.decoded_message, self.error_count, self.amount_of_chunks = self.decode_message()
 
     @staticmethod
     def create_h_matrix():
@@ -65,7 +66,8 @@ class HammingCodeDecode:
         :return: matrix, the parity check matrix
         """
         m = 4
-        parity_matrix = matrix(GF(2), m, 15)
+        parity_matrix = matrix(GF(2), m, 11)
+
         for i in range(m):
             for j in range(11):
                 parity_matrix[i, j] = (j + 1) & (1 << i) != 0
@@ -103,15 +105,15 @@ class HammingCodeDecode:
         """
         decoded_message = []
         error_count = 0
+        amount_of_chunks = len(self.encoded_message) // 15
         for i in range(0, len(self.encoded_message), 15):
             chunk = self.encoded_message[i:i+15]
             syndrome = self.calculate_syndrome(chunk)
             error_count += sum(1 for bit in syndrome if bit != 0)
             corrected_chunk = self.correct_errors(chunk, syndrome)
-            header = corrected_chunk[:4]
-            k = int(''.join(str(bit) for bit in header), 2)
-            original_message = corrected_chunk[4:4 + k]
+            header = corrected_chunk[:3]
+            padding_length = int(''.join(str(bit) for bit in header), 2)
+            original_message = corrected_chunk[3:11-padding_length]
             decoded_message.extend(original_message)
         # Remove any trailing zeros introduced by padding
-        decoded_message = decoded_message[:len(self.encoded_message)//15*7]
-        return decoded_message, error_count
+        return decoded_message, error_count, amount_of_chunks
