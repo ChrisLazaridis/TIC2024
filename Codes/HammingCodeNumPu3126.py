@@ -61,18 +61,19 @@ class HammingCodeDecode:
     @staticmethod
     def create_h_matrix():
         """
-        Create the parity check matrix for the Hamming code
+        Create the parity check matrix for the Hamming code.
         :return: matrix, the parity check matrix
         """
         m = 5
-        parity_matrix = np.zeros((26, m), dtype=int)
+        n = 31  # Codeword length
+        parity_matrix = np.zeros((m, n), dtype=int)
 
-        for i in range(26):
+        for i in range(n):
             for j in range(m):
-                parity_matrix[i, j] = (i + 1) & (1 << j) != 0
+                parity_matrix[j, i] = (i + 1) & (1 << j) != 0
 
         identity_matrix = np.eye(m, dtype=int)
-        h_matrix = np.hstack((parity_matrix, identity_matrix))
+        h_matrix = np.hstack((parity_matrix[:, :n-m], identity_matrix))
         return h_matrix
 
     def calculate_syndrome(self, message):

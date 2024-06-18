@@ -14,7 +14,8 @@ def create_noise(mes, percentage):
         raise ValueError("Percentage must be between 0 and 1")
     noise_count = int(len(mes) * percentage)
     for _ in range(noise_count):
-        mes[len(mes) - (len(mes)//2) - _] ^= 1
+        #mes[len(mes) - 1 - _ % noise_count] ^= 1
+        mes[random.randint(0, len(mes) - 1)] ^= 1
     return mes
 
 
