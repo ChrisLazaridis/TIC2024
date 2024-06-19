@@ -2,7 +2,6 @@ import numpy as np
 from itertools import product
 import random
 
-
 class LinearCode:
     def __init__(self, message_, n=7, mode='encode'):
         m = np.array([int(bit) for bit in message_])
@@ -11,11 +10,16 @@ class LinearCode:
         self.parity_matrix = self.create_parity_matrix()
         self.generator_matrix = self.create_generator_matrix()
         if mode == 'encode':
-            self.padding_length = (self.k - (len(m) % self.k)) % self.k
-            self.header = [int(bit) for bit in bin(self.padding_length)[2:].zfill(16)]
+            # Calculate padding length so the total length is a multiple of self.k
+            self.padding_length = (self.k - ((len(m) + 2) % self.k)) % self.k
+            # Create a 2-bit header for the padding length
+            self.header = [int(bit) for bit in bin(self.padding_length)[2:].zfill(2)]
             self.header = np.array(self.header)
+            # Pad the message
             padded_message = np.append(m, [0] * self.padding_length)
+            # Combine header and padded message
             self.message = np.array(self.header.tolist() + padded_message.tolist())
+            # Encode the message
             self.encoded_message = self.encode_message()
             self.encoded_message = [int(bit) for bit in self.encoded_message]
         elif mode == 'decode':
@@ -111,9 +115,9 @@ class LinearCode:
             # Extract the original message part from the corrected chunk
             dm.extend(chunk[:self.k])
 
-        header = dm[:16]
+        header = dm[:2]
         padding_length = int(''.join(str(bit) for bit in header), 2)
-        if padding_length > 0:
+        if 0 < padding_length <= 3:
             dm = dm[:-padding_length]
-        decoded_message = dm[16:]
+        decoded_message = dm[2:]
         return decoded_message, error_count, errors_corrected

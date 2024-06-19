@@ -13,21 +13,26 @@ def create_noise(mes, percentage):
     if percentage < 0 or percentage > 1:
         raise ValueError("Percentage must be between 0 and 1")
     noise_count = int(len(mes) * percentage)
-    # while True:
-    #     noise_positions = sorted(random.sample(range(len(mes)), noise_count))
-    #     if all(abs(noise_positions[i] - noise_positions[i-1]) > 7 for i in range(1, len(noise_positions))):
+    # nc = 0
+    # for _ in range(0, len(mes) - 1, 7):
+    #     mes[_ + random.randint(0, 6)] ^= 1
+    #     nc += 1
+    #     if nc >= noise_count:
     #         break
-    # for pos in noise_positions:
-    #     mes[pos] ^= 1
+    # if nc < noise_count:
+    #     while nc < noise_count:
+    #         mes[random.randint(2, len(mes) - 1)] ^= 1
+    #         nc += 1
     # return mes
-    for i in range(noise_count):
+    for _ in range(noise_count):
         mes[random.randint(0, len(mes) - 1)] ^= 1
     return mes
 
 
+
 # Example usage
-message = "Hello World This Is My first Message"
-message2 = (
+message2 = "Hello World This Is My first Message!?!?!?!?!??!??!"
+message = (
     "Ex-Fiorentina icon Jovetic, introduced from the Olympiakos bench, "
     "forced a good save from Terracciano with a curling 20-yard strike one minute later as the match seemed to spark back to life. "
     "However, the game then tightened up again as neither team appeared to want to take a risk that might cost them the tie. "
@@ -47,7 +52,7 @@ linear_code = LinearCode(compressed_message)
 encoded_message = linear_code.encoded_message
 
 # Adding noise
-encoded_message_with_noise = create_noise(list(encoded_message), 0.01)
+encoded_message_with_noise = create_noise(list(encoded_message), 0.001)
 
 if len(encoded_message) != len(encoded_message_with_noise):
     print("Error: Encoded message and encoded message with noise are not the same length")
