@@ -29,7 +29,6 @@ def create_noise(mes, percentage):
     return mes
 
 
-
 # Example usage
 message2 = "Hello World This Is My first Message!?!?!?!?!??!??!"
 message = (
@@ -48,11 +47,11 @@ compressed_message = compressor.compress
 compressed_message = [int(bit) for bit in compressed_message]
 
 # Encoding
-linear_code = LinearCode(compressed_message)
+linear_code = LinearCode(compressed_message, n=15)
 encoded_message = linear_code.encoded_message
 
 # Adding noise
-encoded_message_with_noise = create_noise(list(encoded_message), 0.001)
+encoded_message_with_noise = create_noise(list(encoded_message), 0.01)
 
 if len(encoded_message) != len(encoded_message_with_noise):
     print("Error: Encoded message and encoded message with noise are not the same length")
@@ -63,7 +62,7 @@ differences = sum(1 for bit1, bit2 in zip(encoded_message, encoded_message_with_
 print(f"Differences: {differences / len(encoded_message) * 100:.2f}%")
 
 # Decoding
-linear_code_decode = LinearCode(encoded_message_with_noise, mode='decode')
+linear_code_decode = LinearCode(encoded_message_with_noise, n=15, mode='decode')
 decoded_message = linear_code_decode.decoded_message
 decoded_message = [int(bit) for bit in decoded_message]
 

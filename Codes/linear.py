@@ -2,6 +2,7 @@ import numpy as np
 from itertools import product
 import random
 
+
 class LinearCode:
     def __init__(self, message_, n=7, mode='encode'):
         m = np.array([int(bit) for bit in message_])
@@ -67,6 +68,60 @@ class LinearCode:
             words.append(encoded_word)
         return words
 
+    # def create_checker_matrix(self):
+    #     """
+    #     Create the checker matrix for the linear code.
+    #     Each column corresponds to a possible word in the code and each row to a different syndrome.
+    #     """
+    #     num_codewords = 2 ** self.k
+    #     num_syndromes = 2 ** (self.n - self.k)
+    #     checker_matrix = np.zeros((num_syndromes, num_codewords), dtype=int)
+    #
+    #     # Calculate all possible syndromes for each word with a single bit error
+    #     for idx, word in enumerate(self.words):
+    #         for error_pos in range(self.n):
+    #             distorted_word = word.copy()
+    #             distorted_word[error_pos] ^= 1
+    #             syndrome = self.calculate_syndrome(distorted_word)
+    #             syndrome_int = int(''.join(map(str, syndrome)), 2)
+    #             checker_matrix[syndrome_int, idx] = error_pos + 1  # Store position (1-based) where error was introduced
+    #
+    #     return checker_matrix
+    #
+    # def decode_message(self):
+    #     """
+    #     Decode the message using the linear code.
+    #     Use the checker matrix to correct errors based on the syndrome and the known code words.
+    #     """
+    #     error_count = 0
+    #     errors_corrected = 0
+    #     dm = []
+    #
+    #     for i in range(0, len(self.encoded_message), self.n):
+    #         chunk = self.encoded_message[i:i + self.n]
+    #         syndrome = self.calculate_syndrome(chunk)
+    #         syndrome_int = int(''.join(map(str, syndrome)), 2)
+    #
+    #         if syndrome_int != 0:  # Non-zero syndrome indicates an error
+    #             error_count += 1
+    #             # Locate the position of the error using the checker matrix
+    #             error_info = np.where(self.checker_matrix[syndrome_int, :] != 0)[0]
+    #             if len(error_info) > 0:
+    #                 error_index = error_info[0]
+    #                 error_pos = self.checker_matrix[syndrome_int, error_index] - 1
+    #                 chunk[error_pos] ^= 1
+    #                 if self.calculate_syndrome(chunk).any() == 0:
+    #                     errors_corrected += 1
+    #
+    #         # Extract the original message part from the corrected chunk
+    #         dm.extend(chunk[:self.k])
+    #
+    #     header = dm[:2]
+    #     padding_length = int(''.join(str(bit) for bit in header), 2)
+    #     if 0 < padding_length <= 3:
+    #         dm = dm[:-padding_length]
+    #     decoded_message = dm[2:]
+    #     return decoded_message, error_count, errors_corrected
     def create_checker_matrix(self):
         """
         Create the checker matrix for the linear code.
@@ -74,7 +129,7 @@ class LinearCode:
         """
         num_codewords = 2 ** self.k
         num_syndromes = 2 ** (self.n - self.k)
-        checker_matrix = np.zeros((num_syndromes, num_codewords), dtype=int)
+        checker_matrix = np.zeros((num_syndromes, num_codewords), dtype=object)
 
         # Calculate all possible syndromes for each word with a single bit error
         for idx, word in enumerate(self.words):
@@ -83,7 +138,7 @@ class LinearCode:
                 distorted_word[error_pos] ^= 1
                 syndrome = self.calculate_syndrome(distorted_word)
                 syndrome_int = int(''.join(map(str, syndrome)), 2)
-                checker_matrix[syndrome_int, idx] = error_pos + 1  # Store position (1-based) where error was introduced
+                checker_matrix[syndrome_int, idx] = distorted_word.copy()
 
         return checker_matrix
 
@@ -103,14 +158,12 @@ class LinearCode:
 
             if syndrome_int != 0:  # Non-zero syndrome indicates an error
                 error_count += 1
-                # Locate the position of the error using the checker matrix
-                error_info = np.where(self.checker_matrix[syndrome_int, :] != 0)[0]
-                if len(error_info) > 0:
-                    error_index = error_info[0]
-                    error_pos = self.checker_matrix[syndrome_int, error_index] - 1
-                    chunk[error_pos] ^= 1
-                    if self.calculate_syndrome(chunk).any() == 0:
+                # Check each codeword in the corresponding column of the checker matrix
+                for idx, codeword in enumerate(self.checker_matrix[syndrome_int, :]):
+                    if np.array_equal(chunk, codeword):
+                        chunk = self.words[idx].copy()  # Correct to the original codeword
                         errors_corrected += 1
+                        break
 
             # Extract the original message part from the corrected chunk
             dm.extend(chunk[:self.k])
