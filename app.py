@@ -1,22 +1,66 @@
 from flask import Flask, request, jsonify
-from tests import *
-import requests
+from Codes.linear import LinearCode
+from Codes.fano_shannon import Compress
+import numpy as np
+import base64
+
 app = Flask(__name__)
 
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
+def bytes_to_bits_with_header(byte_array):
+    # Get the header
+    header = byte_array[0]
 
-@app.route('/post', methods=['POST'])
-def post_example():
+    # Get the bits from the byte array
+    bits = []
+    for i in range(1, len(byte_array)):
+        byte = byte_array[i]
+        for j in range(7, -1, -1):
+            bits.append((byte >> j) & 1)
+
+    # Remove the padding bits
+    if header < 8:
+        bits = bits[:-8 + header]
+
+    return bits
+
+
+@app.route('/', methods=['POST'])
+def hello_world():
     data = request.json
-    CompressEncodeDecodeDecomress(str(data[1]))
-    return jsonify({'you_sent': data}), 200
+    if not data:
+        return jsonify({'error': 'Invalid JSON data'}), 400
+
+    message = data.get('message')
+    code_table = data.get('code_table')
+    n = data.get('n')
+    errors = data.get('errors')
+    entropy = data.get('entropy')
+
+    if not all([message, code_table, n, errors, entropy]):
+        return jsonify({'error': 'Missing fields in JSON data'}), 400
+
+    try:
+        # Decode the base64 message
+        byte_array = base64.b64decode(message)
+        encoded_message_ = bytes_to_bits_with_header(byte_array)
+        encoded_message_ = [int(bit) for bit in encoded_message_]
+        llinear_code = LinearCode(encoded_message_, n=n, mode='decode')
+        decoded_message_ = llinear_code.decoded_message
+        errors_found = llinear_code.error_count
+        errors_corrected = llinear_code.errors_corrected
+
+        # Decompress the message
+        decompressor = Compress(decoded_message_, code_table_=code_table, mode='decode')
+        decompressed_message = decompressor.decompress()
+
+        return jsonify(
+            {'message': decompressed_message, 'original_errors': errors, 'errors_found': errors_found,
+             'errors_corrected': errors_corrected,
+             'entropy': entropy})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':
-    app.run()
-
-# TODO: get the message, decode it using the linear code, decompress it using the fano-shanon algorithm
-# TODO: and print the result
+    app.run(debug=True)

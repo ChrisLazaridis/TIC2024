@@ -1,5 +1,5 @@
 import random
-from fannon_shannon import Compress  # Assuming this is your compression module
+from fano_shannon import Compress  # Assuming this is your compression module
 from linear import LinearCode  # Assuming this is your linear code module
 
 
@@ -13,25 +13,27 @@ def create_noise(mes, percentage):
     if percentage < 0 or percentage > 1:
         raise ValueError("Percentage must be between 0 and 1")
     noise_count = int(len(mes) * percentage)
-    # nc = 0
-    # for _ in range(0, len(mes) - 1, 7):
-    #     mes[_ + random.randint(0, 6)] ^= 1
-    #     nc += 1
-    #     if nc >= noise_count:
-    #         break
-    # if nc < noise_count:
-    #     while nc < noise_count:
-    #         mes[random.randint(2, len(mes) - 1)] ^= 1
-    #         nc += 1
-    # return mes
-    for _ in range(noise_count):
-        mes[random.randint(0, len(mes) - 1)] ^= 1
+    nc = 0
+    indexes = set()
+    for _ in range(0, len(mes) - 1, 7):
+        mes[_ + random.randint(0, 6)] ^= 1
+        nc += 1
+        indexes.add(_)
+        if nc >= noise_count:
+            break
+    if nc < noise_count:
+        while nc < noise_count:
+            index = random.randint(2, len(mes) - 1)
+            if index not in indexes:
+                indexes.add(index)
+                mes[index] ^= 1
+                nc += 1
+    print(f"Total Changes: {nc}")
     return mes
 
-
 # Example usage
-message2 = "Hello World This Is My first Message!?!?!?!?!??!??!"
-message = (
+message = ""
+message2 = (
     "Ex-Fiorentina icon Jovetic, introduced from the Olympiakos bench, "
     "forced a good save from Terracciano with a curling 20-yard strike one minute later as the match seemed to spark back to life. "
     "However, the game then tightened up again as neither team appeared to want to take a risk that might cost them the tie. "
@@ -47,7 +49,7 @@ compressed_message = compressor.compress
 compressed_message = [int(bit) for bit in compressed_message]
 
 # Encoding
-linear_code = LinearCode(compressed_message, n=15)
+linear_code = LinearCode(compressed_message, n=20)
 encoded_message = linear_code.encoded_message
 
 # Adding noise
@@ -62,7 +64,7 @@ differences = sum(1 for bit1, bit2 in zip(encoded_message, encoded_message_with_
 print(f"Differences: {differences / len(encoded_message) * 100:.2f}%")
 
 # Decoding
-linear_code_decode = LinearCode(encoded_message_with_noise, n=15, mode='decode')
+linear_code_decode = LinearCode(encoded_message_with_noise, n=20, mode='decode')
 decoded_message = linear_code_decode.decoded_message
 decoded_message = [int(bit) for bit in decoded_message]
 
