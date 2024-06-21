@@ -84,19 +84,3 @@ if response.status_code == 200:
     # Print each key-value pair line by line
     for key, value in json_data.items():
         print(f"{key}: {value}")
-# # try to decode the message ourselves
-# # the base64 message
-# message = data.get('message')
-# code_table = data.get('code_table')
-# n = data.get('n')
-# byte_array_2 = base64.b64decode(message)
-# if byte_array == byte_array_2:
-#     print("Byte Arrays are the same")
-# encoded_message_ = bytes_to_bits_with_header(byte_array_2)
-# # Decode the message using LinearCodede
-# encoded_message_ = [int(bit) for bit in encoded_message_]
-# print(f"encoded_message_: {encoded_message_}")
-# print(f"encoded message length (pre base64): {len(encoded_message)}")
-# print(f"encoded message length (post base64): {len(encoded_message_)}")
-# if encoded_message == encoded_message_:
-#     print("Encoded Messages are the same")
