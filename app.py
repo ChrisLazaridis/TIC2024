@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 from Codes.linear import LinearCode
 from Codes.fano_shannon import Compress
-import numpy as np
 import base64
 
 app = Flask(__name__)
