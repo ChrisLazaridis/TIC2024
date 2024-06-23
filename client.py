@@ -73,7 +73,15 @@ byte_array = bits_to_bytes_with_header(encoded_message_with_noise)
 base64_encoded_message = base64.b64encode(byte_array).decode('utf-8')
 # print(f"base64_encoded_message: {base64_encoded_message}")
 # create a json object
-data = {'message': base64_encoded_message, 'code_table': code_table, 'n': n, 'errors': total_errors, 'entropy': entropy}
+data = {
+    'message': base64_encoded_message,
+    'compression_algorithm': "fano-shannon",
+    'encoding': "linear",
+    'code_table': code_table,
+    'n': n,
+    'errors': total_errors,
+    'entropy': entropy
+}
 # send the json object to the server
 del code_table
 del n

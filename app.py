@@ -40,9 +40,8 @@ def decode_and_send_back():
     n = data.get('n')
     errors = data.get('errors')
     entropy = data.get('entropy')
-
-    if not all([message, code_table, n, errors, entropy]):
-        return jsonify({'error': 'Missing fields in JSON data'}), 400
+    compression = data.get('compression_algorithm')
+    encoding = data.get('encoding')
 
     try:
         # Decode the base64 message
@@ -54,13 +53,17 @@ def decode_and_send_back():
         errors_found = llinear_code.error_count
         errors_corrected = llinear_code.errors_corrected
 
+
         # Decompress the message
         decompressor = Compress(decoded_message_, code_table_=code_table, mode='decode')
         decompressed_message = decompressor.decompress()
 
         return jsonify(
-            {'message': decompressed_message, 'errors_found': errors_found,
-             'errors_corrected': errors_corrected, 'original errors': errors,
+            {'message': decompressed_message,
+             'compression_algorithm': compression,
+             'encoding': encoding,
+             'original errors': errors,
+             'corrected errors': errors_corrected,
              'entropy': entropy})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
