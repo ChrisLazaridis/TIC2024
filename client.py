@@ -9,16 +9,17 @@ import random
 
 
 def create_noise(mes, percentage):
-    if percentage < 0 or percentage > 1:
-        percentage = 0.01
-    noise_count = int(len(mes) * percentage)
-    indexes = set()
-    for _ in range(noise_count):
-        index = random.randint(0, len(mes) - 1)
-        if index not in indexes:
-            indexes.add(index)
-            mes[index] ^= 1
-    return mes, len(indexes)
+    
+    # if percentage < 0 or percentage > 1:
+    #     percentage = 0.01
+    # noise_count = int(len(mes) * percentage)
+    # indexes = set()
+    # for _ in range(noise_count):
+    #     index = random.randint(0, len(mes) - 1)
+    #     if index not in indexes:
+    #         indexes.add(index)
+    #         mes[index] = 1 if mes[index] == 0 else 0
+    # return mes, len(indexes)
 
 
 def bits_to_bytes_with_header(bits):
@@ -76,7 +77,7 @@ data = {'message': base64_encoded_message, 'code_table': code_table, 'n': n, 'er
 # send the json object to the server
 del code_table
 del n
-response = requests.post('http://127.0.0.1:5000/', json=data)
+response = requests.post('http://127.0.0.1:5000/receive', json=data)
 if response.status_code == 200:
     # Get the JSON data from the response
     json_data = response.json()

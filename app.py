@@ -24,8 +24,13 @@ def bytes_to_bits_with_header(byte_array):
     return bits
 
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['GET', 'POST'])
 def hello_world():
+    return "TIC 2024, P22083, P22126, P22252"
+
+
+@app.route('/receive', methods=['POST'])
+def decode_and_send_back():
     data = request.json
     if not data:
         return jsonify({'error': 'Invalid JSON data'}), 400
@@ -54,8 +59,8 @@ def hello_world():
         decompressed_message = decompressor.decompress()
 
         return jsonify(
-            {'message': decompressed_message, 'original_errors': errors, 'errors_found': errors_found,
-             'errors_corrected': errors_corrected,
+            {'message': decompressed_message, 'errors_found': errors_found,
+             'errors_corrected': errors_corrected, 'original errors': errors,
              'entropy': entropy})
     except Exception as e:
         return jsonify({'error': str(e)}), 500

@@ -72,7 +72,7 @@ class LinearCode:
         for idx, word in enumerate(self.words):
             for error_pos in range(self.n):
                 distorted_word = word.copy()
-                distorted_word[error_pos] ^= 1
+                distorted_word[error_pos] = 1 if distorted_word[error_pos] == 0 else 0  # flip the bit
                 syndrome = self.calculate_syndrome(distorted_word)
                 syndrome_int = int(''.join(map(str, syndrome)), 2)
                 checker_matrix[syndrome_int, idx] = distorted_word.copy()
