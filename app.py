@@ -2,8 +2,26 @@ from flask import Flask, request, jsonify
 from Codes.linear import LinearCode
 from Codes.fano_shannon import Compress
 import base64
+import numpy as np
 
 app = Flask(__name__)
+
+
+def calculate_entropy(message):
+    freq = {}
+    message_length = len(message)
+    for char in message:
+        if char in freq:
+            freq[char] += 1
+        else:
+            freq[char] = 1
+    for char in freq:
+        freq[char] /= message_length
+    freq = dict(sorted(freq.items(), key=lambda x: x[1], reverse=True))
+    en = 0
+    for f in freq.values():
+        en += f * np.log2(1 / f)
+    return round(en, 2)
 
 
 def bytes_to_bits_with_header(byte_array):
@@ -39,7 +57,7 @@ def decode_and_send_back():
     code_table = data.get('code_table')
     n = data.get('n')
     errors = data.get('errors')
-    entropy = data.get('entropy')
+    original_entropy = data.get('entropy')
     compression = data.get('compression_algorithm')
     encoding = data.get('encoding')
 
@@ -53,10 +71,10 @@ def decode_and_send_back():
         errors_found = llinear_code.error_count
         errors_corrected = llinear_code.errors_corrected
 
-
         # Decompress the message
         decompressor = Compress(decoded_message_, code_table_=code_table, mode='decode')
         decompressed_message = decompressor.decompress()
+        entropy = calculate_entropy(decompressed_message)
 
         return jsonify(
             {'message': decompressed_message,
@@ -64,7 +82,8 @@ def decode_and_send_back():
              'encoding': encoding,
              'original errors': errors,
              'corrected errors': errors_corrected,
-             'entropy': entropy})
+             'original entropy': original_entropy,
+             'new entropy': entropy})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
